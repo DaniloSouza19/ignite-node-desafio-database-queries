@@ -7,17 +7,20 @@ import { IGamesRepository } from '../IGamesRepository';
 
 export class GamesRepository implements IGamesRepository {
   private repository: Repository<Game>;
+  private usersRepository: Repository<User>;
 
   constructor() {
     this.repository = getRepository(Game);
+    this.usersRepository = getRepository(User);
   }
 
   async findByTitleContaining(param: string): Promise<Game[]> {
     return await this.repository
-      .createQueryBuilder('games').select()
-      .where(`title ilike :param`, { param: `%${param}%` })
+      .createQueryBuilder('g')
+      .select('g.*')
+      .where(`title ilike '%' || :param ||'%'`, { param: param })
       .execute();
-      // Complete usando query builder
+    // Complete usando query builder
   }
 
   async countAllGames(): Promise<[{ count: string }]> {
@@ -27,11 +30,12 @@ export class GamesRepository implements IGamesRepository {
   }
 
   async findUsersByGameId(id: string): Promise<User[]> {
-    return this.repository
-      .createQueryBuilder('users_games')
-      .select()
-      .where('game_id = :id', { id })
+    return this.usersRepository
+      .createQueryBuilder('u')
+      .select('u.*')
+      .innerJoin('users_games_games', 'ugg', 'ugg.usersId = u.id')
+      .where('ugg.gamesId = :id', { id })
       .execute()
-      // Complete usando query builder
+    // Complete usando query builder
   }
 }
