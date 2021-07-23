@@ -37,7 +37,7 @@ export class UsersRepository implements IUsersRepository {
     return this.repository.query(
       `select * 
       from users 
-      where upper(first_name) = upper(:1) 
-      and upper(last_name) = upper(:1)`, [first_name, last_name]); // Complete usando raw query
+      where upper(first_name) = upper($1) 
+      and upper(last_name) = upper($2)`, [first_name, last_name]); // Complete usando raw query
   }
 }
